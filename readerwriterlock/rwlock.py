@@ -28,11 +28,17 @@ class RWLockRead(object):
             """Acquire a lock."""
             timeout = None if (blocking and timeout < 0) else (timeout if blocking else 0)
             deadline = None if timeout is None else (time.time() + timeout)
-            if not self._rw_lock.lock_read_count.acquire(blocking=True, timeout=-1 if deadline is None else max(0, deadline - time.time())):
+            if not self._rw_lock.lock_read_count.acquire(
+                blocking=True,
+                timeout=-1 if deadline is None else max(0, deadline - time.time())
+            ):
                 return False
             self._rw_lock.read_count += 1
             if 1 == self._rw_lock.read_count:
-                if not self._rw_lock.resource.acquire(blocking=True, timeout=-1 if deadline is None else max(0, deadline - time.time())):
+                if not self._rw_lock.resource.acquire(
+                    blocking=True,
+                    timeout=-1 if deadline is None else max(0, deadline - time.time())
+                ):
                     self._rw_lock.read_count -= 1
                     self._rw_lock.lock_read_count.release()
                     return False
@@ -119,18 +125,30 @@ class RWLockWrite(object):
             """Acquire a lock."""
             timeout = None if (blocking and timeout < 0) else (timeout if blocking else 0)
             deadline = None if timeout is None else (time.time() + timeout)
-            if not self._rw_lock.lock_read_entry.acquire(blocking=True, timeout=-1 if deadline is None else max(0, deadline - time.time())):
+            if not self._rw_lock.lock_read_entry.acquire(
+                blocking=True,
+                timeout=-1 if deadline is None else max(0, deadline - time.time())
+            ):
                 return False
-            if not self._rw_lock.lock_read_try.acquire(blocking=True, timeout=-1 if deadline is None else max(0, deadline - time.time())):
+            if not self._rw_lock.lock_read_try.acquire(
+                blocking=True,
+                timeout=-1 if deadline is None else max(0, deadline - time.time())
+            ):
                 self._rw_lock.lock_read_entry.release()
                 return False
-            if not self._rw_lock.lock_read_count.acquire(blocking=True, timeout=-1 if deadline is None else max(0, deadline - time.time())):
+            if not self._rw_lock.lock_read_count.acquire(
+                blocking=True,
+                timeout=-1 if deadline is None else max(0, deadline - time.time())
+            ):
                 self._rw_lock.lock_read_try.release()
                 self._rw_lock.lock_read_entry.release()
                 return False
             self._rw_lock.read_count += 1
             if 1 == self._rw_lock.read_count:
-                if not self._rw_lock.resource.acquire(blocking=True, timeout=-1 if deadline is None else max(0, deadline - time.time())):
+                if not self._rw_lock.resource.acquire(
+                    blocking=True,
+                    timeout=-1 if deadline is None else max(0, deadline - time.time())
+                ):
                     self._rw_lock.lock_read_try.release()
                     self._rw_lock.lock_read_entry.release()
                     self._rw_lock.read_count -= 1
@@ -172,16 +190,25 @@ class RWLockWrite(object):
             """Acquire a lock."""
             timeout = None if (blocking and timeout < 0) else (timeout if blocking else 0)
             deadline = None if timeout is None else (time.time() + timeout)
-            if not self._rw_lock.lock_write_count.acquire(blocking=True, timeout=-1 if deadline is None else max(0, deadline - time.time())):
+            if not self._rw_lock.lock_write_count.acquire(
+                blocking=True,
+                timeout=-1 if deadline is None else max(0, deadline - time.time())
+            ):
                 return False
             self._rw_lock.write_count += 1
             if 1 == self._rw_lock.write_count:
-                if not self._rw_lock.lock_read_try.acquire(blocking=True, timeout=-1 if deadline is None else max(0, deadline - time.time())):
+                if not self._rw_lock.lock_read_try.acquire(
+                    blocking=True,
+                    timeout=-1 if deadline is None else max(0, deadline - time.time())
+                ):
                     self._rw_lock.write_count -= 1
                     self._rw_lock.lock_write_count.release()
                     return False
             self._rw_lock.lock_write_count.release()
-            if not self._rw_lock.resource.acquire(blocking=True, timeout=-1 if deadline is None else max(0, deadline - time.time())):
+            if not self._rw_lock.resource.acquire(
+                blocking=True,
+                timeout=-1 if deadline is None else max(0, deadline - time.time())
+            ):
                 self._rw_lock.lock_write_count.acquire()
                 self._rw_lock.write_count -= 1
                 if 0 == self._rw_lock.write_count:
@@ -241,14 +268,23 @@ class RWLockFair(object):
             """Acquire a lock."""
             timeout = None if (blocking and timeout < 0) else (timeout if blocking else 0)
             deadline = None if timeout is None else (time.time() + timeout)
-            if not self._rw_lock.lock_read.acquire(blocking=True, timeout=-1 if deadline is None else max(0, deadline - time.time())):
+            if not self._rw_lock.lock_read.acquire(
+                blocking=True,
+                timeout=-1 if deadline is None else max(0, deadline - time.time())
+            ):
                 return False
-            if not self._rw_lock.lock_read_count.acquire(blocking=True, timeout=-1 if deadline is None else max(0, deadline - time.time())):
+            if not self._rw_lock.lock_read_count.acquire(
+                blocking=True,
+                timeout=-1 if deadline is None else max(0, deadline - time.time())
+            ):
                 self._rw_lock.lock_read.release()
                 return False
             self._rw_lock.read_count += 1
             if 1 == self._rw_lock.read_count:
-                if not self._rw_lock.lock_write.acquire(blocking=True, timeout=-1 if deadline is None else max(0, deadline - time.time())):
+                if not self._rw_lock.lock_write.acquire(
+                    blocking=True,
+                    timeout=-1 if deadline is None else max(0, deadline - time.time())
+                ):
                     self._rw_lock.read_count -= 1
                     self._rw_lock.lock_read_count.release()
                     self._rw_lock.lock_read.release()
@@ -288,9 +324,15 @@ class RWLockFair(object):
             """Acquire a lock."""
             timeout = None if (blocking and timeout < 0) else (timeout if blocking else 0)
             deadline = None if timeout is None else (time.time() + timeout)
-            if not self._rw_lock.lock_read.acquire(blocking=True, timeout=-1 if deadline is None else max(0, deadline - time.time())):
+            if not self._rw_lock.lock_read.acquire(
+                blocking=True,
+                timeout=-1 if deadline is None else max(0, deadline - time.time())
+            ):
                 return False
-            if not self._rw_lock.lock_write.acquire(blocking=True, timeout=-1 if deadline is None else max(0, deadline - time.time())):
+            if not self._rw_lock.lock_write.acquire(
+                blocking=True,
+                timeout=-1 if deadline is None else max(0, deadline - time.time())
+            ):
                 self._rw_lock.lock_read.release()
                 return False
             self._locked = True
