@@ -15,44 +15,44 @@ class RWLockRead(object):
 
 	def __init__(self, lock_factory: typing.Callable = threading.Lock) -> None:
 		"""Init."""
-		self.v_read_count = 0
-		self.c_resource = lock_factory()
-		self.c_lock_read_count = lock_factory()
+		self.read_count = 0
+		self.resource = lock_factory()
+		self.lock_read_count = lock_factory()
 
 	class _aReader(object):
-		def __init__(self, p_RWLock: "RWLockRead") -> None:
-			self.c_rw_lock = p_RWLock
-			self.v_locked = False
+		def __init__(self, RWLock: "RWLockRead") -> None:
+			self._rw_lock = RWLock
+			self._locked = False
 
 		def acquire(self, blocking: bool = True, timeout: float = -1) -> bool:
 			"""Acquire a lock."""
-			p_timeout = None if (blocking and timeout < 0) else (timeout if blocking else 0)
-			c_deadline = None if p_timeout is None else (time.time() + p_timeout)
-			if not self.c_rw_lock.c_lock_read_count.acquire(blocking=True, timeout=-1 if c_deadline is None else max(0, c_deadline - time.time())):
+			timeout = None if (blocking and timeout < 0) else (timeout if blocking else 0)
+			c_deadline = None if timeout is None else (time.time() + timeout)
+			if not self._rw_lock.lock_read_count.acquire(blocking=True, timeout=-1 if c_deadline is None else max(0, c_deadline - time.time())):
 				return False
-			self.c_rw_lock.v_read_count += 1
-			if 1 == self.c_rw_lock.v_read_count:
-				if not self.c_rw_lock.c_resource.acquire(blocking=True, timeout=-1 if c_deadline is None else max(0, c_deadline - time.time())):
-					self.c_rw_lock.v_read_count -= 1
-					self.c_rw_lock.c_lock_read_count.release()
+			self._rw_lock.read_count += 1
+			if 1 == self._rw_lock.read_count:
+				if not self._rw_lock.resource.acquire(blocking=True, timeout=-1 if c_deadline is None else max(0, c_deadline - time.time())):
+					self._rw_lock.read_count -= 1
+					self._rw_lock.lock_read_count.release()
 					return False
-			self.c_rw_lock.c_lock_read_count.release()
-			self.v_locked = True
+			self._rw_lock.lock_read_count.release()
+			self._locked = True
 			return True
 
 		def release(self) -> None:
 			"""Release the lock."""
-			if not self.v_locked: raise RuntimeError("cannot release un-acquired lock")
-			self.v_locked = False
-			self.c_rw_lock.c_lock_read_count.acquire()
-			self.c_rw_lock.v_read_count -= 1
-			if 0 == self.c_rw_lock.v_read_count:
-				self.c_rw_lock.c_resource.release()
-			self.c_rw_lock.c_lock_read_count.release()
+			if not self._locked: raise RuntimeError("cannot release un-acquired lock")
+			self._locked = False
+			self._rw_lock.lock_read_count.acquire()
+			self._rw_lock.read_count -= 1
+			if 0 == self._rw_lock.read_count:
+				self._rw_lock.resource.release()
+			self._rw_lock.lock_read_count.release()
 
 		def locked(self) -> bool:
 			"""Answer to 'is file locked?'."""
-			return self.v_locked
+			return self._locked
 
 		def __enter__(self) -> None:
 			self.acquire()
@@ -62,24 +62,24 @@ class RWLockRead(object):
 			return False
 
 	class _aWriter(object):
-		def __init__(self, p_RWLock: "RWLockRead") -> None:
-			self.c_rw_lock = p_RWLock
-			self.v_locked = False
+		def __init__(self, RWLock: "RWLockRead") -> None:
+			self._rw_lock = RWLock
+			self._locked = False
 
 		def acquire(self, blocking: bool = True, timeout: float = -1) -> bool:
 			"""Acquire a lock."""
-			self.v_locked = self.c_rw_lock.c_resource.acquire(blocking, timeout)
-			return self.v_locked
+			self._locked = self._rw_lock.resource.acquire(blocking, timeout)
+			return self._locked
 
 		def release(self) -> None:
 			"""Release the lock."""
-			if not self.v_locked: raise RuntimeError("cannot release un-acquired lock")
-			self.v_locked = False
-			self.c_rw_lock.c_resource.release()
+			if not self._locked: raise RuntimeError("cannot release un-acquired lock")
+			self._locked = False
+			self._rw_lock.resource.release()
 
 		def locked(self) -> bool:
 			"""Answer to 'is file locked?'."""
-			return self.v_locked
+			return self._locked
 
 		def __enter__(self) -> None:
 			self.acquire()
@@ -102,59 +102,59 @@ class RWLockWrite(object):
 
 	def __init__(self, lock_factory: typing.Callable = threading.Lock) -> None:
 		"""Init."""
-		self.v_read_count = 0
-		self.v_write_count = 0
-		self.c_lock_read_count = lock_factory()
-		self.c_lock_write_count = lock_factory()
-		self.c_lock_read_entry = lock_factory()
-		self.c_lock_read_try = lock_factory()
-		self.c_resource = lock_factory()
+		self.read_count = 0
+		self.write_count = 0
+		self.lock_read_count = lock_factory()
+		self.lock_write_count = lock_factory()
+		self.lock_read_entry = lock_factory()
+		self.lock_read_try = lock_factory()
+		self.resource = lock_factory()
 
 	class _aReader(object):
-		def __init__(self, p_RWLock: "RWLockWrite") -> None:
-			self.c_rw_lock = p_RWLock
-			self.v_locked = False
+		def __init__(self, RWLock: "RWLockWrite") -> None:
+			self._rw_lock = RWLock
+			self._locked = False
 
 		def acquire(self, blocking: bool = True, timeout: float = -1) -> bool:
 			"""Acquire a lock."""
-			p_timeout = None if (blocking and timeout < 0) else (timeout if blocking else 0)
-			c_deadline = None if p_timeout is None else (time.time() + p_timeout)
-			if not self.c_rw_lock.c_lock_read_entry.acquire(blocking=True, timeout=-1 if c_deadline is None else max(0, c_deadline - time.time())):
+			timeout = None if (blocking and timeout < 0) else (timeout if blocking else 0)
+			c_deadline = None if timeout is None else (time.time() + timeout)
+			if not self._rw_lock.lock_read_entry.acquire(blocking=True, timeout=-1 if c_deadline is None else max(0, c_deadline - time.time())):
 				return False
-			if not self.c_rw_lock.c_lock_read_try.acquire(blocking=True, timeout=-1 if c_deadline is None else max(0, c_deadline - time.time())):
-				self.c_rw_lock.c_lock_read_entry.release()
+			if not self._rw_lock.lock_read_try.acquire(blocking=True, timeout=-1 if c_deadline is None else max(0, c_deadline - time.time())):
+				self._rw_lock.lock_read_entry.release()
 				return False
-			if not self.c_rw_lock.c_lock_read_count.acquire(blocking=True, timeout=-1 if c_deadline is None else max(0, c_deadline - time.time())):
-				self.c_rw_lock.c_lock_read_try.release()
-				self.c_rw_lock.c_lock_read_entry.release()
+			if not self._rw_lock.lock_read_count.acquire(blocking=True, timeout=-1 if c_deadline is None else max(0, c_deadline - time.time())):
+				self._rw_lock.lock_read_try.release()
+				self._rw_lock.lock_read_entry.release()
 				return False
-			self.c_rw_lock.v_read_count += 1
-			if 1 == self.c_rw_lock.v_read_count:
-				if not self.c_rw_lock.c_resource.acquire(blocking=True, timeout=-1 if c_deadline is None else max(0, c_deadline - time.time())):
-					self.c_rw_lock.c_lock_read_try.release()
-					self.c_rw_lock.c_lock_read_entry.release()
-					self.c_rw_lock.v_read_count -= 1
-					self.c_rw_lock.c_lock_read_count.release()
+			self._rw_lock.read_count += 1
+			if 1 == self._rw_lock.read_count:
+				if not self._rw_lock.resource.acquire(blocking=True, timeout=-1 if c_deadline is None else max(0, c_deadline - time.time())):
+					self._rw_lock.lock_read_try.release()
+					self._rw_lock.lock_read_entry.release()
+					self._rw_lock.read_count -= 1
+					self._rw_lock.lock_read_count.release()
 					return False
-			self.c_rw_lock.c_lock_read_count.release()
-			self.c_rw_lock.c_lock_read_try.release()
-			self.c_rw_lock.c_lock_read_entry.release()
-			self.v_locked = True
+			self._rw_lock.lock_read_count.release()
+			self._rw_lock.lock_read_try.release()
+			self._rw_lock.lock_read_entry.release()
+			self._locked = True
 			return True
 
 		def release(self) -> None:
 			"""Release the lock."""
-			if not self.v_locked: raise RuntimeError("cannot release un-acquired lock")
-			self.v_locked = False
-			self.c_rw_lock.c_lock_read_count.acquire()
-			self.c_rw_lock.v_read_count -= 1
-			if 0 == self.c_rw_lock.v_read_count:
-				self.c_rw_lock.c_resource.release()
-			self.c_rw_lock.c_lock_read_count.release()
+			if not self._locked: raise RuntimeError("cannot release un-acquired lock")
+			self._locked = False
+			self._rw_lock.lock_read_count.acquire()
+			self._rw_lock.read_count -= 1
+			if 0 == self._rw_lock.read_count:
+				self._rw_lock.resource.release()
+			self._rw_lock.lock_read_count.release()
 
 		def locked(self) -> bool:
 			"""Answer to 'is file locked?'."""
-			return self.v_locked
+			return self._locked
 
 		def __enter__(self) -> None:
 			self.acquire()
@@ -164,47 +164,47 @@ class RWLockWrite(object):
 			return False
 
 	class _aWriter(object):
-		def __init__(self, p_RWLock: "RWLockWrite") -> None:
-			self.c_rw_lock = p_RWLock
-			self.v_locked = False
+		def __init__(self, RWLock: "RWLockWrite") -> None:
+			self._rw_lock = RWLock
+			self._locked = False
 
 		def acquire(self, blocking: bool = True, timeout: float = -1) -> bool:
 			"""Acquire a lock."""
-			p_timeout = None if (blocking and timeout < 0) else (timeout if blocking else 0)
-			c_deadline = None if p_timeout is None else (time.time() + p_timeout)
-			if not self.c_rw_lock.c_lock_write_count.acquire(blocking=True, timeout=-1 if c_deadline is None else max(0, c_deadline - time.time())):
+			timeout = None if (blocking and timeout < 0) else (timeout if blocking else 0)
+			c_deadline = None if timeout is None else (time.time() + timeout)
+			if not self._rw_lock.lock_write_count.acquire(blocking=True, timeout=-1 if c_deadline is None else max(0, c_deadline - time.time())):
 				return False
-			self.c_rw_lock.v_write_count += 1
-			if 1 == self.c_rw_lock.v_write_count:
-				if not self.c_rw_lock.c_lock_read_try.acquire(blocking=True, timeout=-1 if c_deadline is None else max(0, c_deadline - time.time())):
-					self.c_rw_lock.v_write_count -= 1
-					self.c_rw_lock.c_lock_write_count.release()
+			self._rw_lock.write_count += 1
+			if 1 == self._rw_lock.write_count:
+				if not self._rw_lock.lock_read_try.acquire(blocking=True, timeout=-1 if c_deadline is None else max(0, c_deadline - time.time())):
+					self._rw_lock.write_count -= 1
+					self._rw_lock.lock_write_count.release()
 					return False
-			self.c_rw_lock.c_lock_write_count.release()
-			if not self.c_rw_lock.c_resource.acquire(blocking=True, timeout=-1 if c_deadline is None else max(0, c_deadline - time.time())):
-				self.c_rw_lock.c_lock_write_count.acquire()
-				self.c_rw_lock.v_write_count -= 1
-				if 0 == self.c_rw_lock.v_write_count:
-					self.c_rw_lock.c_lock_read_try.release()
-				self.c_rw_lock.c_lock_write_count.release()
+			self._rw_lock.lock_write_count.release()
+			if not self._rw_lock.resource.acquire(blocking=True, timeout=-1 if c_deadline is None else max(0, c_deadline - time.time())):
+				self._rw_lock.lock_write_count.acquire()
+				self._rw_lock.write_count -= 1
+				if 0 == self._rw_lock.write_count:
+					self._rw_lock.lock_read_try.release()
+				self._rw_lock.lock_write_count.release()
 				return False
-			self.v_locked = True
+			self._locked = True
 			return True
 
 		def release(self) -> None:
 			"""Release the lock."""
-			if not self.v_locked: raise RuntimeError("cannot release un-acquired lock")
-			self.v_locked = False
-			self.c_rw_lock.c_resource.release()
-			self.c_rw_lock.c_lock_write_count.acquire()
-			self.c_rw_lock.v_write_count -= 1
-			if 0 == self.c_rw_lock.v_write_count:
-				self.c_rw_lock.c_lock_read_try.release()
-			self.c_rw_lock.c_lock_write_count.release()
+			if not self._locked: raise RuntimeError("cannot release un-acquired lock")
+			self._locked = False
+			self._rw_lock.resource.release()
+			self._rw_lock.lock_write_count.acquire()
+			self._rw_lock.write_count -= 1
+			if 0 == self._rw_lock.write_count:
+				self._rw_lock.lock_read_try.release()
+			self._rw_lock.lock_write_count.release()
 
 		def locked(self) -> bool:
 			"""Answer to 'is file locked?'."""
-			return self.v_locked
+			return self._locked
 
 		def __enter__(self) -> None:
 			self.acquire()
@@ -227,50 +227,50 @@ class RWLockFair(object):
 
 	def __init__(self, lock_factory: typing.Callable = threading.Lock) -> None:
 		"""Init."""
-		self.v_read_count = 0
-		self.c_lock_read_count = lock_factory()
-		self.c_lock_read = lock_factory()
-		self.c_lock_write = lock_factory()
+		self.read_count = 0
+		self.lock_read_count = lock_factory()
+		self.lock_read = lock_factory()
+		self.lock_write = lock_factory()
 
 	class _aReader(object):
-		def __init__(self, p_RWLock: "RWLockFair") -> None:
-			self.c_rw_lock = p_RWLock
-			self.v_locked = False
+		def __init__(self, RWLock: "RWLockFair") -> None:
+			self._rw_lock = RWLock
+			self._locked = False
 
 		def acquire(self, blocking: bool = True, timeout: float = -1) -> bool:
 			"""Acquire a lock."""
-			p_timeout = None if (blocking and timeout < 0) else (timeout if blocking else 0)
-			c_deadline = None if p_timeout is None else (time.time() + p_timeout)
-			if not self.c_rw_lock.c_lock_read.acquire(blocking=True, timeout=-1 if c_deadline is None else max(0, c_deadline - time.time())):
+			timeout = None if (blocking and timeout < 0) else (timeout if blocking else 0)
+			c_deadline = None if timeout is None else (time.time() + timeout)
+			if not self._rw_lock.lock_read.acquire(blocking=True, timeout=-1 if c_deadline is None else max(0, c_deadline - time.time())):
 				return False
-			if not self.c_rw_lock.c_lock_read_count.acquire(blocking=True, timeout=-1 if c_deadline is None else max(0, c_deadline - time.time())):
-				self.c_rw_lock.c_lock_read.release()
+			if not self._rw_lock.lock_read_count.acquire(blocking=True, timeout=-1 if c_deadline is None else max(0, c_deadline - time.time())):
+				self._rw_lock.lock_read.release()
 				return False
-			self.c_rw_lock.v_read_count += 1
-			if 1 == self.c_rw_lock.v_read_count:
-				if not self.c_rw_lock.c_lock_write.acquire(blocking=True, timeout=-1 if c_deadline is None else max(0, c_deadline - time.time())):
-					self.c_rw_lock.v_read_count -= 1
-					self.c_rw_lock.c_lock_read_count.release()
-					self.c_rw_lock.c_lock_read.release()
+			self._rw_lock.read_count += 1
+			if 1 == self._rw_lock.read_count:
+				if not self._rw_lock.lock_write.acquire(blocking=True, timeout=-1 if c_deadline is None else max(0, c_deadline - time.time())):
+					self._rw_lock.read_count -= 1
+					self._rw_lock.lock_read_count.release()
+					self._rw_lock.lock_read.release()
 					return False
-			self.c_rw_lock.c_lock_read_count.release()
-			self.c_rw_lock.c_lock_read.release()
-			self.v_locked = True
+			self._rw_lock.lock_read_count.release()
+			self._rw_lock.lock_read.release()
+			self._locked = True
 			return True
 
 		def release(self) -> None:
 			"""Release the lock."""
-			if not self.v_locked: raise RuntimeError("cannot release un-acquired lock")
-			self.v_locked = False
-			self.c_rw_lock.c_lock_read_count.acquire()
-			self.c_rw_lock.v_read_count -= 1
-			if 0 == self.c_rw_lock.v_read_count:
-				self.c_rw_lock.c_lock_write.release()
-			self.c_rw_lock.c_lock_read_count.release()
+			if not self._locked: raise RuntimeError("cannot release un-acquired lock")
+			self._locked = False
+			self._rw_lock.lock_read_count.acquire()
+			self._rw_lock.read_count -= 1
+			if 0 == self._rw_lock.read_count:
+				self._rw_lock.lock_write.release()
+			self._rw_lock.lock_read_count.release()
 
 		def locked(self) -> bool:
 			"""Answer to 'is file locked?'."""
-			return self.v_locked
+			return self._locked
 
 		def __enter__(self) -> None:
 			self.acquire()
@@ -280,32 +280,32 @@ class RWLockFair(object):
 			return False
 
 	class _aWriter(object):
-		def __init__(self, p_RWLock: "RWLockFair") -> None:
-			self.c_rw_lock = p_RWLock
-			self.v_locked = False
+		def __init__(self, RWLock: "RWLockFair") -> None:
+			self._rw_lock = RWLock
+			self._locked = False
 
 		def acquire(self, blocking: bool = True, timeout: float = -1) -> bool:
 			"""Acquire a lock."""
-			p_timeout = None if (blocking and timeout < 0) else (timeout if blocking else 0)
-			c_deadline = None if p_timeout is None else (time.time() + p_timeout)
-			if not self.c_rw_lock.c_lock_read.acquire(blocking=True, timeout=-1 if c_deadline is None else max(0, c_deadline - time.time())):
+			timeout = None if (blocking and timeout < 0) else (timeout if blocking else 0)
+			c_deadline = None if timeout is None else (time.time() + timeout)
+			if not self._rw_lock.lock_read.acquire(blocking=True, timeout=-1 if c_deadline is None else max(0, c_deadline - time.time())):
 				return False
-			if not self.c_rw_lock.c_lock_write.acquire(blocking=True, timeout=-1 if c_deadline is None else max(0, c_deadline - time.time())):
-				self.c_rw_lock.c_lock_read.release()
+			if not self._rw_lock.lock_write.acquire(blocking=True, timeout=-1 if c_deadline is None else max(0, c_deadline - time.time())):
+				self._rw_lock.lock_read.release()
 				return False
-			self.v_locked = True
+			self._locked = True
 			return True
 
 		def release(self) -> None:
 			"""Release the lock."""
-			if not self.v_locked: raise RuntimeError("cannot release un-acquired lock")
-			self.v_locked = False
-			self.c_rw_lock.c_lock_write.release()
-			self.c_rw_lock.c_lock_read.release()
+			if not self._locked: raise RuntimeError("cannot release un-acquired lock")
+			self._locked = False
+			self._rw_lock.lock_write.release()
+			self._rw_lock.lock_read.release()
 
 		def locked(self) -> bool:
 			"""Answer to 'is file locked?'."""
-			return self.v_locked
+			return self._locked
 
 		def __enter__(self) -> None:
 			self.acquire()
