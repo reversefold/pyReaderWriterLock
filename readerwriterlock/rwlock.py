@@ -56,6 +56,7 @@ class RWLockRead(object):
                 self._rw_lock.resource.release()
             self._rw_lock.lock_read_count.release()
 
+        @property
         def locked(self) -> bool:
             """Answer to 'is file locked?'."""
             return self._locked
@@ -83,6 +84,7 @@ class RWLockRead(object):
             self._locked = False
             self._rw_lock.resource.release()
 
+        @property
         def locked(self) -> bool:
             """Answer to 'is file locked?'."""
             return self._locked
@@ -170,6 +172,7 @@ class RWLockWrite(object):
                 self._rw_lock.resource.release()
             self._rw_lock.lock_read_count.release()
 
+        @property
         def locked(self) -> bool:
             """Answer to 'is file locked?'."""
             return self._locked
@@ -229,6 +232,7 @@ class RWLockWrite(object):
                 self._rw_lock.lock_read_try.release()
             self._rw_lock.lock_write_count.release()
 
+        @property
         def locked(self) -> bool:
             """Answer to 'is file locked?'."""
             return self._locked
@@ -304,6 +308,7 @@ class RWLockFair(object):
                 self._rw_lock.lock_write.release()
             self._rw_lock.lock_read_count.release()
 
+        @property
         def locked(self) -> bool:
             """Answer to 'is file locked?'."""
             return self._locked
@@ -345,6 +350,7 @@ class RWLockFair(object):
             self._rw_lock.lock_write.release()
             self._rw_lock.lock_read.release()
 
+        @property
         def locked(self) -> bool:
             """Answer to 'is file locked?'."""
             return self._locked
