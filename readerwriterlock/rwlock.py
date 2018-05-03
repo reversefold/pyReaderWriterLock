@@ -5,26 +5,22 @@
 import threading
 import time
 
-from typing import Optional
-from types import TracebackType
-import typing
-
 
 class RWLockRead(object):
     """A Read/Write lock giving preference to Reader."""
 
-    def __init__(self, lock_factory: typing.Callable = threading.Lock) -> None:
+    def __init__(self, lock_factory=threading.Lock):
         """Init."""
         self.read_count = 0
         self.resource = lock_factory()
         self.lock_read_count = lock_factory()
 
     class _aReader(object):
-        def __init__(self, RWLock: "RWLockRead") -> None:
+        def __init__(self, RWLock):
             self._rw_lock = RWLock
             self._locked = False
 
-        def acquire(self, blocking: bool = True, timeout: float = -1) -> bool:
+        def acquire(self, blocking=True, timeout=-1):
             """Acquire a lock."""
             timeout = None if (blocking and timeout < 0) else (timeout if blocking else 0)
             deadline = None if timeout is None else (time.time() + timeout)
@@ -46,7 +42,7 @@ class RWLockRead(object):
             self._locked = True
             return True
 
-        def release(self) -> None:
+        def release(self):
             """Release the lock."""
             if not self._locked: raise RuntimeError("cannot release un-acquired lock")
             self._locked = False
@@ -57,50 +53,50 @@ class RWLockRead(object):
             self._rw_lock.lock_read_count.release()
 
         @property
-        def locked(self) -> bool:
+        def locked(self):
             """Answer to 'is file locked?'."""
             return self._locked
 
-        def __enter__(self) -> None:
+        def __enter__(self):
             self.acquire()
 
-        def __exit__(self, exc_type, exc_val: Optional[Exception], exc_tb: Optional[TracebackType]) -> bool:
+        def __exit__(self, exc_type, exc_val, exc_tb):
             self.release()
             return False
 
     class _aWriter(object):
-        def __init__(self, RWLock: "RWLockRead") -> None:
+        def __init__(self, RWLock):
             self._rw_lock = RWLock
             self._locked = False
 
-        def acquire(self, blocking: bool = True, timeout: float = -1) -> bool:
+        def acquire(self, blocking=True, timeout=-1):
             """Acquire a lock."""
             self._locked = self._rw_lock.resource.acquire(blocking, timeout)
             return self._locked
 
-        def release(self) -> None:
+        def release(self):
             """Release the lock."""
             if not self._locked: raise RuntimeError("cannot release un-acquired lock")
             self._locked = False
             self._rw_lock.resource.release()
 
         @property
-        def locked(self) -> bool:
+        def locked(self):
             """Answer to 'is file locked?'."""
             return self._locked
 
-        def __enter__(self) -> None:
+        def __enter__(self):
             self.acquire()
 
-        def __exit__(self, exc_type, exc_val: Optional[Exception], exc_tb: Optional[TracebackType]) -> bool:
+        def __exit__(self, exc_type, exc_val, exc_tb):
             self.release()
             return False
 
-    def gen_rlock(self) -> "RWLockRead._aReader":
+    def gen_rlock(self):
         """Generate a reader lock."""
         return RWLockRead._aReader(self)
 
-    def gen_wlock(self) -> "RWLockRead._aWriter":
+    def gen_wlock(self):
         """Generate a writer lock."""
         return RWLockRead._aWriter(self)
 
@@ -108,7 +104,7 @@ class RWLockRead(object):
 class RWLockWrite(object):
     """A Read/Write lock giving preference to Writer."""
 
-    def __init__(self, lock_factory: typing.Callable = threading.Lock) -> None:
+    def __init__(self, lock_factory=threading.Lock):
         """Init."""
         self.read_count = 0
         self.write_count = 0
@@ -119,11 +115,11 @@ class RWLockWrite(object):
         self.resource = lock_factory()
 
     class _aReader(object):
-        def __init__(self, RWLock: "RWLockWrite") -> None:
+        def __init__(self, RWLock):
             self._rw_lock = RWLock
             self._locked = False
 
-        def acquire(self, blocking: bool = True, timeout: float = -1) -> bool:
+        def acquire(self, blocking=True, timeout=-1):
             """Acquire a lock."""
             timeout = None if (blocking and timeout < 0) else (timeout if blocking else 0)
             deadline = None if timeout is None else (time.time() + timeout)
@@ -162,7 +158,7 @@ class RWLockWrite(object):
             self._locked = True
             return True
 
-        def release(self) -> None:
+        def release(self):
             """Release the lock."""
             if not self._locked: raise RuntimeError("cannot release un-acquired lock")
             self._locked = False
@@ -173,23 +169,23 @@ class RWLockWrite(object):
             self._rw_lock.lock_read_count.release()
 
         @property
-        def locked(self) -> bool:
+        def locked(self):
             """Answer to 'is file locked?'."""
             return self._locked
 
-        def __enter__(self) -> None:
+        def __enter__(self):
             self.acquire()
 
-        def __exit__(self, exc_type, exc_val: Optional[Exception], exc_tb: Optional[TracebackType]) -> bool:
+        def __exit__(self, exc_type, exc_val, exc_tb):
             self.release()
             return False
 
     class _aWriter(object):
-        def __init__(self, RWLock: "RWLockWrite") -> None:
+        def __init__(self, RWLock):
             self._rw_lock = RWLock
             self._locked = False
 
-        def acquire(self, blocking: bool = True, timeout: float = -1) -> bool:
+        def acquire(self, blocking=True, timeout=-1):
             """Acquire a lock."""
             timeout = None if (blocking and timeout < 0) else (timeout if blocking else 0)
             deadline = None if timeout is None else (time.time() + timeout)
@@ -221,7 +217,7 @@ class RWLockWrite(object):
             self._locked = True
             return True
 
-        def release(self) -> None:
+        def release(self):
             """Release the lock."""
             if not self._locked: raise RuntimeError("cannot release un-acquired lock")
             self._locked = False
@@ -233,22 +229,22 @@ class RWLockWrite(object):
             self._rw_lock.lock_write_count.release()
 
         @property
-        def locked(self) -> bool:
+        def locked(self):
             """Answer to 'is file locked?'."""
             return self._locked
 
-        def __enter__(self) -> None:
+        def __enter__(self):
             self.acquire()
 
-        def __exit__(self, exc_type, exc_val: Optional[Exception], exc_tb: Optional[TracebackType]) -> bool:
+        def __exit__(self, exc_type, exc_val, exc_tb):
             self.release()
             return False
 
-    def gen_rlock(self) -> "RWLockWrite._aReader":
+    def gen_rlock(self):
         """Generate a reader lock."""
         return RWLockWrite._aReader(self)
 
-    def gen_wlock(self) -> "RWLockWrite._aWriter":
+    def gen_wlock(self):
         """Generate a writer lock."""
         return RWLockWrite._aWriter(self)
 
@@ -256,7 +252,7 @@ class RWLockWrite(object):
 class RWLockFair(object):
     """A Read/Write lock giving fairness to both Reader and Writer."""
 
-    def __init__(self, lock_factory: typing.Callable = threading.Lock) -> None:
+    def __init__(self, lock_factory=threading.Lock):
         """Init."""
         self.read_count = 0
         self.lock_read_count = lock_factory()
@@ -264,11 +260,11 @@ class RWLockFair(object):
         self.lock_write = lock_factory()
 
     class _aReader(object):
-        def __init__(self, RWLock: "RWLockFair") -> None:
+        def __init__(self, RWLock):
             self._rw_lock = RWLock
             self._locked = False
 
-        def acquire(self, blocking: bool = True, timeout: float = -1) -> bool:
+        def acquire(self, blocking=True, timeout=-1):
             """Acquire a lock."""
             timeout = None if (blocking and timeout < 0) else (timeout if blocking else 0)
             deadline = None if timeout is None else (time.time() + timeout)
@@ -298,7 +294,7 @@ class RWLockFair(object):
             self._locked = True
             return True
 
-        def release(self) -> None:
+        def release(self):
             """Release the lock."""
             if not self._locked: raise RuntimeError("cannot release un-acquired lock")
             self._locked = False
@@ -309,23 +305,23 @@ class RWLockFair(object):
             self._rw_lock.lock_read_count.release()
 
         @property
-        def locked(self) -> bool:
+        def locked(self):
             """Answer to 'is file locked?'."""
             return self._locked
 
-        def __enter__(self) -> None:
+        def __enter__(self):
             self.acquire()
 
-        def __exit__(self, exc_type, exc_val: Optional[Exception], exc_tb: Optional[TracebackType]) -> bool:
+        def __exit__(self, exc_type, exc_val, exc_tb):
             self.release()
             return False
 
     class _aWriter(object):
-        def __init__(self, RWLock: "RWLockFair") -> None:
+        def __init__(self, RWLock):
             self._rw_lock = RWLock
             self._locked = False
 
-        def acquire(self, blocking: bool = True, timeout: float = -1) -> bool:
+        def acquire(self, blocking=True, timeout=-1):
             """Acquire a lock."""
             timeout = None if (blocking and timeout < 0) else (timeout if blocking else 0)
             deadline = None if timeout is None else (time.time() + timeout)
@@ -343,7 +339,7 @@ class RWLockFair(object):
             self._locked = True
             return True
 
-        def release(self) -> None:
+        def release(self):
             """Release the lock."""
             if not self._locked: raise RuntimeError("cannot release un-acquired lock")
             self._locked = False
@@ -351,21 +347,21 @@ class RWLockFair(object):
             self._rw_lock.lock_read.release()
 
         @property
-        def locked(self) -> bool:
+        def locked(self):
             """Answer to 'is file locked?'."""
             return self._locked
 
-        def __enter__(self) -> None:
+        def __enter__(self):
             self.acquire()
 
-        def __exit__(self, exc_type, exc_val: Optional[Exception], exc_tb: Optional[TracebackType]) -> bool:
+        def __exit__(self, exc_type, exc_val, exc_tb):
             self.release()
             return False
 
-    def gen_rlock(self) -> "RWLockFair._aReader":
+    def gen_rlock(self):
         """Generate a reader lock."""
         return RWLockFair._aReader(self)
 
-    def gen_wlock(self) -> "RWLockFair._aWriter":
+    def gen_wlock(self):
         """Generate a writer lock."""
         return RWLockFair._aWriter(self)
