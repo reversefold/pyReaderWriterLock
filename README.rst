@@ -10,7 +10,7 @@ For reading about the theory behind the reader-writer problems refer to `Wikiped
 Installation
 ------------
 
-Install the `python <https://www.python.org>`_ package `readerwriterlock <https://pypi.python.org/pypi/readerwriterlock/>`_
+Install the `python <https://www.python.org>`_ package `readerwriterlock <https://pypi.python.org/pypi/readerwriterlock_rf/>`_
 
   python3 -m pip install readerwriterlock
 
@@ -64,7 +64,7 @@ Advanced Usage example
 Live example
 ------------
 
-Refer to the file `rwlock_test.py <https://github.com/elarivie/pyReaderWriterLock/blob/master/tests/rwlock_test.py>`_ which can be directly called, it has above 90% line coverage of [rwlock.py](readerwriterlock/rwlock.py).
+Refer to the file `rwlock_test.py <https://github.com/reversefold/pyReaderWriterLock/blob/master/tests/rwlock_test.py>`_ which can be directly called, it has above 90% line coverage of [rwlock.py](readerwriterlock/rwlock.py).
 
 The tests can be initiated by doing
 
@@ -75,7 +75,7 @@ The tests can be initiated by doing
 Build
 -----
 
-This project use the `BUILDME <https://github.com/elarivie/BUILDME>`_ interface, you may therefore build the project by simply doing:
+This project use the `BUILDME <https://github.com/reversefold/BUILDME>`_ interface, you may therefore build the project by simply doing:
 
 ::
 
@@ -89,6 +89,6 @@ You are the welcome to contribute.
 Contact
 -------
 
-:Project: `https://github.com/elarivie/pyReaderWriterLock <https://github.com/elarivie/pyReaderWriterLock>`_
-:Bug tracker: `https://github.com/elarivie/pyReaderWriterLock/issues <https://github.com/elarivie/pyReaderWriterLock/issues>`_
+:Project: `https://github.com/reversefold/pyReaderWriterLock <https://github.com/reversefold/pyReaderWriterLock>`_
+:Bug tracker: `https://github.com/reversefold/pyReaderWriterLock/issues <https://github.com/reversefold/pyReaderWriterLock/issues>`_
 :Author: Éric Larivière `ericlariviere@hotmail.com <ericlariviere@hotmail.com>`_

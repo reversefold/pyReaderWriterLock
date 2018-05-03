@@ -3,14 +3,14 @@ Reader Writer Lock
 
 **A python implementation of the three Reader-Writer problems.**
 
-[![Build Status](https://travis-ci.org/elarivie/pyReaderWriterLock.svg?branch=master)](https://travis-ci.org/elarivie/pyReaderWriterLock)
-[![BugTracker](https://img.shields.io/github/issues/elarivie/pyReaderWriterLock.svg)][pyReaderWriterLock_BugTracker]
-[![pyReaderWriterLock_repo_star](https://img.shields.io/github/stars/elarivie/pyReaderWriterLock.svg?style=social&label=Stars)][pyReaderWriterLock_repo_star]
+[![Build Status](https://travis-ci.org/reversefold/pyReaderWriterLock.svg?branch=master)](https://travis-ci.org/reversefold/pyReaderWriterLock)
+[![BugTracker](https://img.shields.io/github/issues/reversefold/pyReaderWriterLock.svg)][pyReaderWriterLock_BugTracker]
+[![pyReaderWriterLock_repo_star](https://img.shields.io/github/stars/reversefold/pyReaderWriterLock.svg?style=social&label=Stars)][pyReaderWriterLock_repo_star]
 
 [![Python Version](https://img.shields.io/pypi/pyversions/readerwriterlock.svg)][python]
 [![Pypi Version](https://img.shields.io/pypi/v/readerwriterlock.svg)][pyReaderWriterLock_Pypi]
 
-[![Code size in bytes](https://img.shields.io/github/languages/code-size/elarivie/pyReaderWriterLock.svg)][pyReaderWriterLock_repo]
+[![Code size in bytes](https://img.shields.io/github/languages/code-size/reversefold/pyReaderWriterLock.svg)][pyReaderWriterLock_repo]
 [![License](https://img.shields.io/pypi/l/readerwriterlock.svg)][pyReaderWriterLock_License]
 
 Not only does it implement the reader-writer problems, it is also compliant with the python lock interface which includes support for timeouts.
@@ -19,7 +19,7 @@ For reading about the theory behind the reader-writer problems refer to [Wikiped
 
 # Installation
 
-Install the python package [readerwriterlock](https://pypi.python.org/pypi/readerwriterlock)
+Install the python package [readerwriterlock](https://pypi.python.org/pypi/readerwriterlock_rf)
 
 	python3 -m pip install readerwriterlock
 
@@ -76,7 +76,7 @@ The tests can be initiated by doing
 ```
 
 # Build
-This project use the [BUILDME](https://github.com/elarivie/BUILDME) interface, you may therefore build the project by simply doing:
+This project use the [BUILDME](https://github.com/reversefold/BUILDME) interface, you may therefore build the project by simply doing:
 ```bash
 ./BUILDME
 ```
@@ -88,13 +88,13 @@ You are the welcome to contribute (Welcome in the open source world):
 
 Contact
 ----
-* Project: [GitHub](https://github.com/elarivie/pyReaderWriterLock)
+* Project: [GitHub](https://github.com/reversefold/pyReaderWriterLock)
 * Éric Larivière <ericlariviere@hotmail.com>
 
 
 [python]: https://www.python.org
-[pyReaderWriterLock_repo]: https://github.com/elarivie/pyReaderWriterLock
-[pyReaderWriterLock_BugTracker]: https://github.com/elarivie/pyReaderWriterLock/issues
-[pyReaderWriterLock_repo_star]: https://github.com/elarivie/pyReaderWriterLock/stargazers
-[pyReaderWriterLock_Pypi]: https://pypi.python.org/pypi/readerwriterlock
-[pyReaderWriterLock_License]: https://github.com/elarivie/pyReaderWriterLock/blob/master/LICENSE.txt
+[pyReaderWriterLock_repo]: https://github.com/reversefold/pyReaderWriterLock
+[pyReaderWriterLock_BugTracker]: https://github.com/reversefold/pyReaderWriterLock/issues
+[pyReaderWriterLock_repo_star]: https://github.com/reversefold/pyReaderWriterLock/stargazers
+[pyReaderWriterLock_Pypi]: https://pypi.python.org/pypi/readerwriterlock_rf
+[pyReaderWriterLock_License]: https://github.com/reversefold/pyReaderWriterLock/blob/master/LICENSE.txt
